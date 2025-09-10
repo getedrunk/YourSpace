@@ -1,16 +1,14 @@
 <% layout("/layouts/boilerplate") %>
 <div class="row">
   <div class="col-8 offset-3">
-    <h3>Details</h3>
+    <h3><b><%= obj.title %></b></h3>
   </div>
 
   <div class="card col-6 offset-3">
     <img src="<%= obj.image %>" class="card-img-top show-img" alt="Listing-img">
     <div class="card-body">
       <p class="card-text">
-        <b><%= obj.title %></b>
-        <br>
-        <%= obj.description %>
+        <%= obj.description %> <br>
         <br>
         &#8377;<%= obj.price.toLocaleString("en-IN") %>
         <br>
@@ -27,6 +25,23 @@
     <a href="/listings/<%= obj._id %>/edit" class="btn btn-dark col-1 offset-3 edit-btn">Edit</a>
     <form method="POST" action="/listings/<%= obj._id %>?_method=DELETE">
       <button class="btn btn-dark offset-4">Delete</button>
+    </form>
+  </div>
+  <div class="col-8 offset-3"> 
+    <hr>
+    <h4>Leave a review</h4>
+    <form action="/listings/<%=obj._id%>/reviews" method="post" novalidate class="needs-validation">
+      <div class="mb-3 mt-3">
+        <label for="rating" class="form-label">Rating</label>
+        <input type="range" class="form-range" min = "1" max = "5" id = "rating" name = "review[rating]" >
+      </div>
+      <div class="mb-3 mt-3">
+        <label for="comment" class="form-label">Comments</label>
+        <textarea name="review[comment]" id="comment" cols="30" rows="4" class="form-control" required></textarea>
+        <div class="invalid-feedback">Please submit a valid review !</div>
+      </div>
+      <button class="btn btn-outline-dark mb-3 ">Submit</button>
+      <br>
     </form>
   </div>
 </div>

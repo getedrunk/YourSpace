@@ -32,9 +32,14 @@ main().then(()=>{
 })
 //model
 const Listing = require("./models/listing.js");
+const Review = require("./models/review.js");
+
 //error(hoppscoth)
 const wrapAsync = require("./utils/wrapAsync.js")
 const ExpressError = require("./utils/ExpressError.js")
+
+//server validation for reviews
+const {reviewSchema} = require("./schema.js")
 
 
 const  ejsMate = require("ejs-mate");
@@ -43,6 +48,18 @@ app.engine('ejs',ejsMate);
 app.listen(8080,()=>{
     console.log("server is runnig");
 });
+
+//function to be as middleware for review validation servers side
+
+const validateReview = (req,res,next)=>{
+    let {error} = reviewSchema.validate(req.body);
+    if(error) {
+        let errMsg = error.details.map((el) => el.message).join(",");
+        throw new ExpressError(400,errMsg);
+    }else{
+        next();
+    }
+}
 
 //root directory
 app.get("/",(req,res)=>{
@@ -84,7 +101,7 @@ app.get("/listings/:id",(async(req,res)=>{
 }));
 
 
-//adding to database from new.ejs form
+    //adding to database from new.ejs form
 app.post("/listings",wrapAsync(async(req,res,next)=>{
         const lis = req.body;
         const user = new Listing({
@@ -123,6 +140,22 @@ app.delete("/listings/:id",wrapAsync(async(req,res)=>{
     let {id} = req.params;
     await Listing.findByIdAndDelete(id);
     res.redirect("/listings");
+}));
+
+
+//adding review for individial listings
+app.post("/listings/:id/reviews",validateReview,wrapAsync(async(req,res)=>{
+    let lis = await Listing.findById(req.params.id);
+    let newReview = new Review(req.body.review);
+
+    lis.reviews.push(newReview);
+
+    await newReview.save();
+    await lis.save();
+
+    console.log("new review savd");
+    res.redirect(`/listings/${lis._id}`);
+
 }));
 
 app.use((req,res,next)=>{
