@@ -4,7 +4,7 @@
     <h3><b><%= obj.title %></b></h3>
   </div>
 
-  <div class="card col-6 offset-3">
+  <div class="card col-6 offset-3 listing-card">
     <img src="<%= obj.image %>" class="card-img-top show-img" alt="Listing-img">
     <div class="card-body">
       <p class="card-text">
@@ -43,5 +43,25 @@
       <button class="btn btn-outline-dark mb-3 ">Submit</button>
       <br>
     </form>
+
+    <hr>
+
+    <p><h4>All Reviews</h4></p>
+    <div class="row">
+      <% for(i of obj.reviews){%>
+        <div class="card col-5 ms-3 mb-3 ">
+          <div class="card-body">
+            <h5 class="card-title">Sanjay</h5>
+            <p class="card-text"><%=i.comment%></p>
+            <p class="card-text"><%=i.rating%></p>
+          </div>
+          <form class="mb-2" method = "post" action = "/listings/<%=obj._id%>/reviews/<%=i._id%>?_method=DELETE">
+            <button class="btn btn-sm btn-dark">Delete</button>
+          </form>
+        </div>
+      <%}%> 
+    </div>  
+
+
   </div>
 </div>
