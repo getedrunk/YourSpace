@@ -96,7 +96,7 @@ app.get("/listings/new",(req,res)=>{
 //show route (Read)-for each individual
 app.get("/listings/:id",(async(req,res)=>{
     let {id} = req.params;
-    let obj = await Listing.findById(id);
+    let obj = await Listing.findById(id).populate("reviews");
     res.render("listings/show.ejs",{obj});
 }));
 
@@ -157,6 +157,16 @@ app.post("/listings/:id/reviews",validateReview,wrapAsync(async(req,res)=>{
     res.redirect(`/listings/${lis._id}`);
 
 }));
+
+
+//deleing a review
+
+app.delete("/listings/:id/reviews/:reviewId",wrapAsync(async(req,res) =>{
+    let {id,reviewId} = req.params;
+    await Listing.findByIdAndUpdate(id,{$pull : {reviews : reviewId}});
+    await Review.findByIdAndDelete(reviewId);
+    res.redirect(`/listings/${id}`)
+}))
 
 app.use((req,res,next)=>{
     next(new ExpressError(404,"page Not Found"));
