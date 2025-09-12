@@ -48,7 +48,8 @@
 
     <p><h4>All Reviews</h4></p>
     <div class="row">
-      <% for(i of obj.reviews){%>
+      <%if(obj.reviews[0]){%>
+        <% for(i of obj.reviews){%>
         <div class="card col-5 ms-3 mb-3 ">
           <div class="card-body">
             <h5 class="card-title">Sanjay</h5>
@@ -59,7 +60,14 @@
             <button class="btn btn-sm btn-dark">Delete</button>
           </form>
         </div>
-      <%}%> 
+        <%}%>
+      <%}else{%>
+        <ul>
+          <li class="ms-4">No Reiews yet add one</li>
+        </ul>
+        
+      <%}%>
+       
     </div>  
 
 
