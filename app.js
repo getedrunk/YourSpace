@@ -13,6 +13,10 @@ const ExpressError = require("./utils/ExpressError.js")
 //routes for listings and reviews
 const listings = require("./routes/listing.js");
 const review = require("./routes/review.js");
+//for session
+const session = require("express-session");
+//for flash messages
+const flash = require("connect-flash");
 
 
 
@@ -29,9 +33,34 @@ app.use(methodoverride("_method"));
 //use ejs-mate when .ejs files are rendered(layouts);
 app.engine('ejs',ejsMate);
 
+const ses = {
+    secret : "Pass123$",
+    resave : false,
+    saveUninitialized : true,
+    cookie : {
+        expires : Date.now()+7*24*60*1000,
+        maxAge : 7*24*60*1000,
+        httpOnly : true
+    }
+    
+}
+
+app.use(session(ses));
+app.use(flash());
+
+//flash then-> routes
+
+app.use((req,res,next)=>{
+    //for accesssing varianles in templetes
+    res.locals.success = req.flash("success");
+    res.locals.error = req.flash("error");
+    next();
+})
+
 //to use the routes
 app.use("/listings",listings);
 app.use("/listings/:id/reviews",review);
+
 
 
 //connecting to database
@@ -44,15 +73,16 @@ main().then(()=>{
 }).catch((err)=>{
     console.log(err);
 })
+//root directory
+app.get("/",(req,res)=>{
+    res.send("hello")
+});
 
 
 app.listen(8080,()=>{
     console.log("server is runnig");
 });
-//root directory
-app.get("/",(req,res)=>{
-    res.send("hello")
-});
+
 //testing connection with the database and wether data is  adding to db or not
 // app.get("/testListing",async(req,res)=>{
 //     let sample = new Listing({
@@ -69,15 +99,16 @@ app.get("/",(req,res)=>{
 // });
 
 
-app.use((err,req,res,next)=>{
-    let{statusCode = 500,message = "Something went Wrong"} = err;
-    res.status(statusCode).render("error.ejs",{message});
-    next();
-})
-
-
 app.use((req,res,next)=>{
     next(new ExpressError(404,"page Not Found"));
 })
+
+app.use((err,req,res,next)=>{
+    let{statusCode = 500,message = "Something went Wrong"} = err;
+    res.status(statusCode).render("error.ejs",{message});
+})
+
+
+
 
 
