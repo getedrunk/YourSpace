@@ -1,6 +1,6 @@
 //for flash msg to disaper over time
 (() => {
-  const flashes = document.querySelectorAll(".flash-message");
+  const flashes = document.querySelectorAll(".alert-success");
 
   flashes.forEach((flash) => {
     setTimeout(() => {
