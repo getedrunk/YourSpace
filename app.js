@@ -11,12 +11,21 @@ const mongoose = require("mongoose");
 //error handling
 const ExpressError = require("./utils/ExpressError.js")
 //routes for listings and reviews
-const listings = require("./routes/listing.js");
-const review = require("./routes/review.js");
+const listingRouter = require("./routes/listing.js");
+const reviewRouter = require("./routes/review.js");
+const userRouter = require("./routes/user.js");
+
+
+const User = require("./models/user.js");
+
 //for session
 const session = require("express-session");
 //for flash messages
 const flash = require("connect-flash");
+//for authentication
+const passport = require("passport");
+//for various functions on authentication
+const localStrategy = require("passport-local");
 
 
 
@@ -44,11 +53,20 @@ const ses = {
     }
     
 }
+//root directory
+app.get("/",(req,res)=>{
+    res.send("hello")
+});
 
 app.use(session(ses));
 app.use(flash());
-
 //flash then-> routes
+
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new localStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 app.use((req,res,next)=>{
     //for accesssing varianles in templetes
@@ -57,9 +75,19 @@ app.use((req,res,next)=>{
     next();
 })
 
+// app.get("/demouser",async(req,res)=>{
+//     let fake = new User({
+//         email : "abc@gmail.com",
+//         username : "demo-user"
+//     });
+//     let reguser = await User.register(fake,"Pass");
+//     res.send(reguser);
+// })
+
 //to use the routes
-app.use("/listings",listings);
-app.use("/listings/:id/reviews",review);
+app.use("/listings",listingRouter);
+app.use("/listings/:id/reviews",reviewRouter);
+app.use("/",userRouter);
 
 
 
@@ -73,10 +101,7 @@ main().then(()=>{
 }).catch((err)=>{
     console.log(err);
 })
-//root directory
-app.get("/",(req,res)=>{
-    res.send("hello")
-});
+
 
 
 app.listen(8080,()=>{
